@@ -13,6 +13,9 @@ import author from "@/store/modules/author";
 import member from "@/store/modules/member";
 import book from "@/store/modules/book";
 import borrow_book from "@/store/modules/borrow_book";
+import permission from "@/store/modules/user_management/permission";
+import roles from "@/store/modules/user_management/role";
+import users from "@/store/modules/user_management/user";
 //module import end
 
 const store = createStore({
@@ -22,6 +25,9 @@ const store = createStore({
     actions,
 
     modules: {
+        permission,
+        roles,
+        users,
         author,
         member,
         book,

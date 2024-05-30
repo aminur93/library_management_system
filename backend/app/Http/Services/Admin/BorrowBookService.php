@@ -2,6 +2,7 @@
 
 namespace App\Http\Services\Admin;
 
+use App\Models\Book;
 use App\Models\BorrowedBook;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -66,34 +67,25 @@ class BorrowBookService
         DB::beginTransaction();
 
         try {
+            // Check if there is any record of the book with 'Returned' status
+            $returnedBookExists = BorrowedBook::where('book_id', $request->book_id)
+                ->where('status', 'Returned')
+                ->exists();
 
-            $book_status = BorrowedBook::where('book_id', $request->book_id)->first();
+            // Check if the book is currently borrowed or overdue
+            $borrowedOrOverdueBookExists = BorrowedBook::where('book_id', $request->book_id)
+                ->whereIn('status', ['Borrowed', 'Overdue'])
+                ->exists();
 
-            if ($book_status === null) {
+            // Fetch the book details
+            $book = Book::find($request->book_id);
 
-                $borrow_book = new BorrowedBook();
-
-                $borrow_book->book_id = $request->book_id;
-                $borrow_book->member_id = $request->member_id;
-                $borrow_book->borrow_date = $request->borrow_date;
-                $borrow_book->return_date = $request->return_date;
-                $borrow_book->status = $request->status;
-
-                $borrow_book->save();
-
-                DB::commit();
-
-                return $borrow_book;
-
-            }
-
-            if ($book_status->status === 'Borrowed' || $book_status->status === 'Overdue') {
-
+            if ($borrowedOrOverdueBookExists) {
                 throw new \Exception("Book is not available", Response::HTTP_BAD_REQUEST);
             }
 
-            if ($book_status->status === 'Returned') {
-
+            if ($returnedBookExists && $book->available_copies > 0) {
+                // Create a new BorrowedBook record
                 $borrow_book = new BorrowedBook();
 
                 $borrow_book->book_id = $request->book_id;
@@ -104,17 +96,23 @@ class BorrowBookService
 
                 $borrow_book->save();
 
+                // Decrement the available copies of the book
+                $book->available_copies = $book->available_copies - 1;
+                $book->save();
+
                 DB::commit();
 
-                return $borrow_book;
+                return response()->json($borrow_book, Response::HTTP_CREATED);
+            } else {
+                throw new \Exception("Book is not available", Response::HTTP_BAD_REQUEST);
             }
-
-        }catch (\Throwable $th){
+        } catch (\Throwable $th) {
             DB::rollBack();
 
             throw $th;
         }
     }
+
 
     public function show($id)
     {

@@ -91,7 +91,7 @@ class LoginService
 
         $permissions = $user->getAllPermissions();
 
-        $menus = Menu::with('menuDropdown')->latest()->get();
+        $menus = Menu::with('menuDropdown')->get();
         $data = [];
 
         foreach ($menus as $m) {

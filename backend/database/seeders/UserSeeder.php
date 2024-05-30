@@ -2,10 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
@@ -14,13 +15,18 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('users')->insert([
-            'name' => 'admin',
-            'email' => 'admin@gmail.com',
-            'phone' => '01772119941',
-            'password' => bcrypt('Aminur@93'),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now()
-        ]);
+        User::create([
+            'name' => 'Admin',
+            'email' => 'admin@example.com',
+            'phone' => '1234567890',
+            'password' => Hash::make('password'),
+        ])->assignRole('admin');
+
+        User::create([
+            'name' => 'Editor',
+            'email' => 'editor@example.com',
+            'phone' => '0987654321',
+            'password' => Hash::make('password'),
+        ])->assignRole('editor');
     }
 }

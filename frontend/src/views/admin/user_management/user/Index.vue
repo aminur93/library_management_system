@@ -4,23 +4,21 @@ import {http} from "@/service/HttpService";
 import permissionMixins from "@/mixins/PermissionMixins";
 
 export default {
-  name: "BorrowBookIndex",
+  name: "LeaveUser",
   mixins: [permissionMixins],
 
   data(){
     return{
-      totalBorrowBooks: 0,
-      borrowBooks: [],
+      totalUsers: 0,
+      users: [],
       loading: true,
       options: {},
       search: '',
       headers: [
         { title: 'ID', key: 'id', sortable: false },
-        { title: 'Book', key: 'book_id' },
-        { title: 'Member', key: 'member_id' },
-        { title: 'Borrow Date', key: 'borrow_date' },
-        { title: 'Return Date', key: 'return_date' },
-        { title: 'Status', key: 'status' },
+        { title: 'Name', key: 'name' },
+        { title: 'Email', key: 'email' },
+        { title: 'Role', key: 'role' },
         { title: 'Actions', key: 'actions', align: 'center', sortable: false },
       ],
     }
@@ -35,43 +33,43 @@ export default {
     },
 
     hasDeletePermission() {
-      return this.checkPermission('borrowBook-delete');
+      return this.checkPermission('user-delete');
     },
 
     ...mapState({
-      message: state => state.borrow_book.success_message,
-      errors: state => state.borrow_book.errors,
-      success_status: state => state.borrow_book.success_status,
-      error_status: state => state.borrow_book.error_status
+      message: state => state.users.success_message,
+      errors: state => state.users.errors,
+      success_status: state => state.users.success_status,
+      error_status: state => state.users.error_status
     })
   },
 
   watch: {
     options: {
       handler () {
-        this.getAllBorrowBooks()
+        this.getAllUsers()
       },
       deep: true,
     },
 
     search: {
       handler () {
-        this.getAllBorrowBooks()
+        this.getAllUsers()
       },
     },
   },
 
   mounted() {
-    this.getAllBorrowBooks();
+    this.getAllUsers();
   },
 
   methods: {
-    getAllBorrowBooks(){
+    getAllUsers(){
       this.loading = true
 
       const { sortBy, sortDesc, page, itemsPerPage } = this.options
 
-      http().get('http://localhost:8000/api/v1/admin/borrow-book', {
+      http().get('http://localhost:8000/api/v1/admin/user', {
         params: {
           sortBy: sortBy[0],
           sortDesc: sortDesc,
@@ -80,8 +78,8 @@ export default {
           search: this.search
         }
       }).then((result) => {
-        this.borrowBooks = result.data.data.data;
-        this.totalBorrowBooks = result.data.data.total;
+        this.users = result.data.data.data;
+        this.totalUsers = result.data.data.total;
         this.loading = false;
       }).catch((err) => {
         console.log(err);
@@ -92,21 +90,21 @@ export default {
       return this.startIndex + item;
     },
 
-    deleteBorrowBook: async function(id){
+    deleteUser: async function(id){
       try {
-        await this.$store.dispatch("borrow_book/DeleteBorrowBook", id).then(() => {
+        await this.$store.dispatch("users/DeleteUser", id).then(() => {
           if (this.success_status === 200)
           {
             this.$swal.fire({
               toast: true,
               position: 'top-end',
               icon: 'success',
-              title: this.message,
+              title: 'User destroy successful',
               showConfirmButton: false,
               timer: 1500
             });
 
-            this.getAllBorrowBooks();
+            this.getAllUsers();
           }
         })
       }catch (e) {
@@ -130,14 +128,14 @@ export default {
 </script>
 
 <template>
-  <div id="index">
+  <div id="user">
     <v-row class="mx-5">
 
       <v-col cols="12" class="pa-6">
 
         <v-row wrap>
           <v-col cols="6">
-            <h1 :class="['text-subtitle-2', 'text-grey', 'mt-5']">Borrow Book</h1>
+            <h1 :class="['text-subtitle-2', 'text-grey', 'mt-5']">User</h1>
           </v-col>
         </v-row>
 
@@ -146,12 +144,12 @@ export default {
             <v-card elevation="8">
               <v-row>
                 <v-col col="6">
-                  <v-card-title :class="['text-subtitle-1']">All Borrow Book Lists</v-card-title>
+                  <v-card-title :class="['text-subtitle-1']">All User Lists</v-card-title>
                 </v-col>
 
                 <v-col cols="6">
                   <v-card-actions class="justify-end">
-                    <v-btn color="success" @click="navigateWithPermission('borrowBook-create', '/add-borrow-book')">
+                    <v-btn color="success" @click="navigateWithPermission('user-create', '/add-user')">
                       <v-icon small left>mdi-plus</v-icon>
                       <span>Add New</span>
                     </v-btn>
@@ -163,7 +161,7 @@ export default {
 
               <v-card-text>
                 <v-card-title class="d-flex align-center pe-2" style="justify-content: space-between">
-                  <h1 :class="['text-subtitle-1', 'text-black']">Borrow Book</h1>
+                  <h1 :class="['text-subtitle-1', 'text-black']">Users</h1>
 
                   <v-spacer></v-spacer>
 
@@ -182,10 +180,10 @@ export default {
 
                 <v-data-table-server
                     :headers="headers"
-                    :items="borrowBooks"
+                    :items="users"
                     :search="search"
                     v-model:options="options"
-                    :items-length="totalBorrowBooks"
+                    :items-length="totalUsers"
                     :loading="loading"
                     item-value="name"
                     class="elevation-4"
@@ -195,32 +193,23 @@ export default {
                     <td>{{ calculateIndex(index) }}</td>
                   </template>
 
-                  <template v-slot:[`item.book_id`]="{ item }">
-                    <td>{{ item.book.title }}</td>
-                  </template>
-
-                  <template v-slot:[`item.member_id`]="{ item }">
-                    <td>{{ item.member.first_name }}</td>
-                  </template>
-
-                  <template v-slot:[`item.status`] = "{item}">
-                    <v-chip
-                        color="cyan"
-                        label
-                    >
-                      {{ item.status }}
-                    </v-chip>
+                  <template v-slot:[`item.role`]="{ item }">
+                    <td>
+                      <v-chip variant="elevated" color="success" :class="['text-center']">
+                        {{ item.roles[0].name }}
+                      </v-chip>
+                    </td>
                   </template>
 
 
                   <template v-slot:[`item.actions`]="{ item }">
                     <v-row align="center" justify="center">
                       <td :class="['mx-2']">
-                        <v-btn @click="navigateWithPermission('borrowBook-edit', `/edit-borrow-book/${item.id}`)" color="warning" icon="mdi-pencil" size="x-small"></v-btn>
+                        <v-btn @click="navigateWithPermission('user-edit', `/edit-user/${item.id}`)" color="warning" icon="mdi-pencil" size="x-small"></v-btn>
                       </td>
 
                       <td v-if="hasDeletePermission">
-                        <v-btn color="red" icon="mdi-delete" size="x-small" @click="deleteBorrowBook(item.id)"></v-btn>
+                        <v-btn color="red" icon="mdi-delete" size="x-small" @click="deleteUser(item.id)"></v-btn>
                       </td>
                     </v-row>
                   </template>

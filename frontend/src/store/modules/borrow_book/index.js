@@ -60,9 +60,10 @@ const mutations = {
         state.success_status = data.status;
     },
 
-    SET_ERROR(state, { errors, errorStatus }) {
+    SET_ERROR(state, { errors, errorStatus, error }) {
         state.errors = errors;
         state.error_status = errorStatus;
+        state.error_message = error;
     }
 }
 
@@ -82,7 +83,8 @@ const actions = {
         } catch (err) {
             const errors = err.response.data.errors;
             const errorStatus = err.response.status;
-            commit("SET_ERROR", { errors, errorStatus });
+            const error = err.response.data.error;
+            commit("SET_ERROR", { errors, errorStatus, error });
             throw err; // Re-throw the error to propagate it to the caller
         }
     },
@@ -98,7 +100,8 @@ const actions = {
             .catch((err) => {
                 const errors = err.response.data.errors;
                 const errorStatus = err.response.status;
-                commit("SET_ERROR", { errors, errorStatus });
+                const error = err.response.data.error;
+                commit("SET_ERROR", { errors, errorStatus, error });
                 throw err;
             })
     },
@@ -114,7 +117,8 @@ const actions = {
             .catch((err) => {
                 const errors = err.response.data.errors;
                 const errorStatus = err.response.status;
-                commit("SET_ERROR", { errors, errorStatus });
+                const error = err.response.data.error;
+                commit("SET_ERROR", { errors, errorStatus, error });
                 throw err;
             })
     },
@@ -130,7 +134,8 @@ const actions = {
             .catch((err) => {
                 const errors = err.response.data.errors;
                 const errorStatus = err.response.status;
-                commit("SET_ERROR", { errors, errorStatus });
+                const error = err.response.data.error;
+                commit("SET_ERROR", { errors, errorStatus, error });
                 throw err;
             })
     },
@@ -146,7 +151,8 @@ const actions = {
             .catch((err) => {
                 const errors = err.response.data.errors;
                 const errorStatus = err.response.status;
-                commit("SET_ERROR", { errors, errorStatus });
+                const error = err.response.data.error;
+                commit("SET_ERROR", { errors, errorStatus, error });
                 throw err;
             })
     },

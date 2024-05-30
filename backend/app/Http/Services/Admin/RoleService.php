@@ -61,6 +61,7 @@ class RoleService
 
     public function store(Request $request)
     {
+
         DB::beginTransaction();
 
         try {
@@ -73,13 +74,13 @@ class RoleService
 
             $permission = $request->input('permission');
 
-//            $stringWithCommas = $permission[0];
-//
-//            $stringArray = explode(',', $stringWithCommas);
-//
-//            $integerArray = array_map('intval', $stringArray);
+            $stringWithCommas = $permission[0];
 
-            $role->syncPermissions($permission);
+            $stringArray = explode(',', $stringWithCommas);
+
+            $integerArray = array_map('intval', $stringArray);
+
+            $role->syncPermissions($integerArray);
 
             $role->save();
 
@@ -135,13 +136,13 @@ class RoleService
 
             $permission = $request->input('permission');
 
-//            $stringWithCommas = $permission[0];
-//
-//            $stringArray = explode(',', $stringWithCommas);
-//
-//            $integerArray = array_map('intval', $stringArray);
+            $stringWithCommas = $permission[0];
 
-            $role->syncPermissions($permission);
+            $stringArray = explode(',', $stringWithCommas);
+
+            $integerArray = array_map('intval', $stringArray);
+
+            $role->syncPermissions($integerArray);
 
             $role->save();
 
