@@ -10,5 +10,5 @@
 ### How to run this application on server
   - at first your machine need install dev enviroment
   - run docker-compose -f docker-compose-tools-db.yaml
-  - run docker-compose -f docker-compose-stagging yaml up -d
+  - run docker-compose -f docker-compose-stagging.yaml up -d
   
